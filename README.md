@@ -1,0 +1,1 @@
+I will creating a Hangman game using my knowledge of Ruby gained so far from The Odin Project curriculum.
