@@ -56,11 +56,7 @@ class Display
   def draw_hangman
     puts "\n\n"
     hangman.each do |part|
-      if part.is_a?(Array)
-        puts part.join('')
-      else
-        puts part
-      end
+      part.is_a?(Array) ? (puts part.join('')) : (puts part)
     end
   end
 
@@ -113,6 +109,12 @@ class Display
     input = gets.chomp until input == '1' || input == '2'
     input
   end
+
+  def play_again
+    puts 'Would you like to play again?(Press Y for yes, anything else to quit)'
+    answer = gets.chomp.downcase
+    Game.new if answer == 'y'
+  end
 end
 
 # class for the game logic
@@ -150,7 +152,7 @@ class Game
       end
     end
     display.lose_message(word) if wrong_guesses == 6
-    play_again
+    display.play_again
   end
 
   def word_generator
@@ -207,11 +209,5 @@ class Game
 
   def win?
     display.join_game_word == word
-  end
-
-  def play_again
-    puts 'Would you like to play again?(Press Y for yes, anything else to quit)'
-    answer = gets.chomp.downcase
-    Game.new if answer == 'y'
   end
 end
