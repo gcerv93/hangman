@@ -67,6 +67,14 @@ class Display
   def join_game_word
     game_word.join('')
   end
+
+  def win_message
+    puts "\n\nCongratulations! You guessed the word!"
+  end
+
+  def lose_message(wrd)
+    puts "\n\nAww you couldn't guess the word :( The word was #{wrd}"
+  end
 end
 
 # class for the game logic
@@ -80,6 +88,18 @@ class Game
     @word = word_generator
     @wrong_guesses = 0
     @guessed_letters = []
+    game_start
+  end
+
+  def game_loop
+    while wrong_guesses < 6
+      game_round
+      if win?
+        display.win_message
+        break
+      end
+    end
+    display.lose_message(word) if wrong_guesses == 6
   end
 
   def word_generator
@@ -110,7 +130,7 @@ class Game
   end
 
   def wrong_player_guess(guess)
-    puts "Sorry! #{guess} isn't in my word :("
+    puts "\nSorry! \"#{guess}\" isn't in my word :("
     @wrong_guesses += 1
     display.update_hangman(wrong_guesses)
   end
@@ -121,6 +141,7 @@ class Game
 
   def game_start
     display.create_game_word_display(word.length)
+    game_loop
   end
 
   def game_round
