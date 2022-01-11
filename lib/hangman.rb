@@ -23,6 +23,7 @@ class Display
   end
 
   def draw_hangman
+    puts "\n\n"
     hangman.each do |part|
       if part.is_a?(Array)
         puts part.join('')
@@ -41,13 +42,13 @@ class Display
   end
 
   def display_game_word
-    puts game_word.join(' ')
+    print "\n   #{game_word.join(' ')}"
   end
 
   def display_guessed(letters)
     guessed_string = 'Wrong guesses:'
     letters.each { |chr| guessed_string += " #{chr}" }
-    puts guessed_string
+    print "         #{guessed_string}\n\n"
   end
 
   # only need to run on a wrong guess, so num should never be 0
@@ -68,10 +69,11 @@ end
 # class for the game logic
 class Game
   attr_accessor :guessed_letters
-  attr_reader :display, :word, :wrong_guesses
+  attr_reader :display, :word, :wrong_guesses, :player
 
   def initialize
     @display = Display.new
+    @player = Player.new
     @word = word_generator
     @wrong_guesses = 0
     @guessed_letters = []
@@ -86,15 +88,36 @@ class Game
 
   def check_player_guess(guess)
     if word.include?(guess) && guessed_letters.include?(guess) == false
-      index_of_letter(guess).each { |idx| update_game_word(idx, guess) }
+      correct_player_guess(guess)
     elsif word.include?(guess) == false && guessed_letters.include?(guess) == false
-      wrong_guesses + 1
+      wrong_player_guess(guess)
     else
       puts 'Please input a different letter: '
     end
+    guessed_letters << guess
+  end
+
+  def correct_player_guess(guess)
+    index_of_letter(guess).each { |idx| update_game_word(idx, guess) }
+  end
+
+  def wrong_player_guess(guess)
+    puts "Sorry! #{guess} isn't in my word :("
+    wrong_guesses += 1
+    update_hangman(wrong_guesses)
   end
 
   def index_of_letter(letter)
-    (0...word.length).find_all { |i| word[i] == 'letter' }
+    (0...word.length).find_all { |i| word[i] == letter }
+  end
+
+  def game_start
+    display.create_game_word_display(word.length)
+  end
+
+  def game_round
+    display.draw_hangman
+    display.display_game_word
+    display.display_guessed(guessed_letters)
   end
 end
