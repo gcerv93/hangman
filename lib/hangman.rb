@@ -46,7 +46,7 @@ class Display
   end
 
   def display_guessed(letters)
-    guessed_string = 'Wrong guesses:'
+    guessed_string = 'Already guessed:'
     letters.each { |chr| guessed_string += " #{chr}" }
     print "         #{guessed_string}\n\n"
   end
@@ -62,7 +62,10 @@ class Display
     else
       hangman[3].pop
     end
-    draw_hangman
+  end
+
+  def join_game_word
+    game_word.join('')
   end
 end
 
@@ -92,19 +95,24 @@ class Game
     elsif word.include?(guess) == false && guessed_letters.include?(guess) == false
       wrong_player_guess(guess)
     else
-      puts 'Please input a different letter: '
+      puts "Please input a different letter!\n\n"
+      check_player_guess(player.player_guess)
     end
-    guessed_letters << guess
+    update_guessed_letters(guess)
+  end
+
+  def update_guessed_letters(guess)
+    guessed_letters << guess unless guessed_letters.include?(guess)
   end
 
   def correct_player_guess(guess)
-    index_of_letter(guess).each { |idx| update_game_word(idx, guess) }
+    index_of_letter(guess).each { |idx| display.update_game_word(idx, guess) }
   end
 
   def wrong_player_guess(guess)
     puts "Sorry! #{guess} isn't in my word :("
-    wrong_guesses += 1
-    update_hangman(wrong_guesses)
+    @wrong_guesses += 1
+    display.update_hangman(wrong_guesses)
   end
 
   def index_of_letter(letter)
@@ -119,5 +127,10 @@ class Game
     display.draw_hangman
     display.display_game_word
     display.display_guessed(guessed_letters)
+    check_player_guess(player.player_guess)
+  end
+
+  def win?
+    display.join_game_word == word
   end
 end
