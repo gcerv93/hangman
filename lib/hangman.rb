@@ -19,8 +19,22 @@ class Display
     puts legs
   end
 
-  def create_game_word_array(wrd_length)
+  def create_game_word(wrd_length)
     wrd_length.times { game_word << '_' }
+  end
+
+  def update_game_word(idx, letter)
+    game_word[idx] = letter
+  end
+
+  def display_game_word
+    puts game_word.join(' ')
+  end
+
+  def display_guessed_letters(letters)
+    guessed_string = 'Wrong guesses:'
+    letters.each { |chr| guessed_string += " #{chr}" }
+    puts guessed_string
   end
 end
 
