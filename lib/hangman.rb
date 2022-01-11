@@ -20,9 +20,14 @@ module Serialize
   end
 
   def deserialize(save_name)
-    game_file = File.new("saved_games/#{save_name}.yaml")
-    yaml = game_file.read
-    YAML.load(yaml)
+    if File.exist?("saved_games/#{save_name}.yaml")
+      game_file = File.new("saved_games/#{save_name}.yaml")
+      yaml = game_file.read
+      YAML.load(yaml)
+    else
+      puts "Could not find file #{save_name}. Starting new game"
+      game_start
+    end
   end
 end
 
@@ -31,10 +36,8 @@ class Player
   def player_guess
     puts 'Please input a letter: '
     answer = gets.chomp
-    if answer.match(/[a-zA-Z]/) && answer.length == 1
+    if answer.match(/[a-zA-Z]/) && answer.length == 1 || answer == '5'
       answer.downcase
-    elsif answer == '5'
-      answer
     else
       player_guess
     end
