@@ -2,13 +2,14 @@
 
 # class for the display
 class Display
-  attr_accessor :head, :arms, :body, :legs
+  attr_accessor :head, :arms, :body, :legs, :game_word
 
   def initialize
     @head = '	 O'
     @arms = '	/ \\'
     @body = '	 |'
     @legs = '	/ \\'
+    @game_word = []
   end
 
   def draw_hangman
@@ -16,6 +17,10 @@ class Display
     puts arms
     puts body
     puts legs
+  end
+
+  def create_game_word_array(wrd_length)
+    wrd_length.times { game_word << '_' }
   end
 end
 
@@ -26,6 +31,8 @@ class Game
   def initialize
     @display = Display.new
     @word = word_generator
+    @guess_count = 0
+    @guessed_letters = []
   end
 
   def word_generator
