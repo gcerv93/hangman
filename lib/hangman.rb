@@ -1,5 +1,31 @@
 # frozen_string_literal: true
 
+require 'yaml'
+
+# module for serialization and deserialization
+module Serialize
+  def save
+    puts 'Enter a name for your save file.'
+    save_name = gets.chomp.downcase
+    serialize(save_name)
+  end
+
+  def serialize(save_name)
+    Dir.mkdir('saved_games') unless Dir.exist?('saved_games')
+    yaml = YAML.dump(self)
+    game_file = File.new("saved_games/#{save_name}.yaml", 'w+')
+    game_file.write(yaml)
+    puts 'File saved successfully'
+    exit(true)
+  end
+
+  def deserialize(save_name)
+    game_file = File.new("saved_games/#{save_name}.yaml")
+    yaml = game_file.read
+    YAML.load(yaml)
+  end
+end
+
 # class for player inputs
 class Player
   def player_guess
@@ -7,6 +33,8 @@ class Player
     answer = gets.chomp
     if answer.match(/[a-zA-Z]/) && answer.length == 1
       answer.downcase
+    elsif answer == '5'
+      answer
     else
       player_guess
     end
@@ -75,6 +103,13 @@ class Display
   def lose_message(wrd)
     puts "\n\nAww you couldn't guess the word :( The word was #{wrd}"
   end
+
+  def load_or_play
+    puts 'Would you like to load a saved file(1) or play a new game(2)?'
+    input = gets.chomp
+    input = gets.chomp until input == '1' || input == '2'
+    input
+  end
 end
 
 # class for the game logic
@@ -82,13 +117,25 @@ class Game
   attr_accessor :guessed_letters
   attr_reader :display, :word, :wrong_guesses, :player
 
+  include Serialize
   def initialize
     @display = Display.new
     @player = Player.new
     @word = word_generator
     @wrong_guesses = 0
     @guessed_letters = []
-    game_start
+    choose_game_mode
+  end
+
+  def choose_game_mode
+    if display.load_or_play == '1'
+      puts 'Enter your file name'
+      file = gets.chomp.downcase
+      game = deserialize(file)
+      game.game_loop
+    else
+      game_start
+    end
   end
 
   def game_loop
@@ -149,7 +196,10 @@ class Game
     display.draw_hangman
     display.display_game_word
     display.display_guessed(guessed_letters)
-    check_player_guess(player.player_guess)
+    puts 'Enter "5" if you would like to save your game'
+    guess = player.player_guess
+    save if guess == '5'
+    check_player_guess(guess)
   end
 
   def win?
