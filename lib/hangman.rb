@@ -68,8 +68,8 @@ class Display
     game_word.join('')
   end
 
-  def win_message
-    puts "\n\nCongratulations! You guessed the word!"
+  def win_message(wrd)
+    puts "\n\nCongratulations! You guessed the word #{wrd}!"
   end
 
   def lose_message(wrd)
@@ -95,11 +95,12 @@ class Game
     while wrong_guesses < 6
       game_round
       if win?
-        display.win_message
+        display.win_message(word)
         break
       end
     end
     display.lose_message(word) if wrong_guesses == 6
+    play_again
   end
 
   def word_generator
@@ -153,5 +154,11 @@ class Game
 
   def win?
     display.join_game_word == word
+  end
+
+  def play_again
+    puts 'Would you like to play again?(Press Y for yes, anything else to quit)'
+    answer = gets.chomp.downcase
+    Game.new if answer == 'y'
   end
 end
