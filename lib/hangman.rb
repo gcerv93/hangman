@@ -53,6 +53,7 @@ class Display
     @game_word = []
   end
 
+  # draw the hangman to the terminal, with each subarray being a specific 'part'
   def draw_hangman
     puts "\n\n"
     hangman.each do |part|
@@ -68,10 +69,12 @@ class Display
     game_word[idx] = letter
   end
 
+  # displays the game_word on the screen, sort of in line with hangman display
   def display_game_word
     print "\n   #{game_word.join(' ')}"
   end
 
+  # Appends guessed letters to the 'Already guessed' display
   def display_guessed(letters)
     guessed_string = 'Already guessed:'
     letters.each { |chr| guessed_string += " #{chr}" }
@@ -79,6 +82,8 @@ class Display
   end
 
   # only need to run on a wrong guess, so num should never be 0
+  # depending on the number of wrong guesses, will pop off a different 'part'
+  # of the hangman, from feet to head
   def update_hangman(num)
     if num == 6
       hangman[0] = ''
@@ -104,7 +109,7 @@ class Display
   end
 
   def load_or_play
-    puts 'Would you like to load a saved file(1) or play a new game(2)?'
+    puts 'Would you like to play a new game(1) or load a saved file(2)?'
     input = gets.chomp
     input = gets.chomp until input == '1' || input == '2'
     input
@@ -133,7 +138,7 @@ class Game
   end
 
   def choose_game_mode
-    if display.load_or_play == '1'
+    if display.load_or_play == '2'
       puts 'Enter your file name'
       file = gets.chomp.downcase
       game = deserialize(file)
@@ -168,6 +173,7 @@ class Game
     elsif word.include?(guess) == false && guessed_letters.include?(guess) == false
       wrong_player_guess(guess)
     else
+      # recursive call to make sure the player input is valid
       puts "Please input a different letter!\n\n"
       check_player_guess(player.player_guess)
     end
@@ -178,18 +184,21 @@ class Game
     guessed_letters << guess unless guessed_letters.include?(guess)
   end
 
+  # update the display word, passing the index and the guessed letter to display
   def correct_player_guess(guess)
     index_of_letter(guess).each { |idx| display.update_game_word(idx, guess) }
   end
 
+  # finding the index of a letter in a word to send to display
+  def index_of_letter(letter)
+    (0...word.length).find_all { |i| word[i] == letter }
+  end
+
+  # updating the hangman display each wrong turn
   def wrong_player_guess(guess)
     puts "\nSorry! \"#{guess}\" isn't in my word :("
     @wrong_guesses += 1
     display.update_hangman(wrong_guesses)
-  end
-
-  def index_of_letter(letter)
-    (0...word.length).find_all { |i| word[i] == letter }
   end
 
   def game_start
@@ -197,6 +206,8 @@ class Game
     game_loop
   end
 
+  # display all information each round, check for player guess and watch for
+  # save input
   def game_round
     display.draw_hangman
     display.display_game_word
